@@ -1,0 +1,25 @@
+<?php
+header('Content-Type: application/json');
+
+$host = "sql307.infinityfree.com";
+$dbname = "if0_42017218_if0_42017218_db_1488676952228_dep";
+$username = "if0_42017218";
+$password = "xsMTfAo6lW"; 
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'error' => 'Ошибка подключения']);
+    exit;
+}
+
+
+$sql = "DELETE FROM plants";
+if ($conn->query($sql) === TRUE) {
+    echo json_encode(['success' => true, 'message' => 'Растение срублено! 🌲💥']);
+} else {
+    echo json_encode(['success' => false, 'error' => 'Ошибка при удалении']);
+}
+
+$conn->close();
+?>
