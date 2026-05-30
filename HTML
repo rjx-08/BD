@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Моё виртуальное растение</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .plant-area {
+            background: #f0f8e8;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plant-emoji {
+            font-size: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .plant-image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .plant-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .plant-image.small {
+            width: 100px;
+            height: 100px;
+        }
+
+        .plant-image.medium {
+            width: 150px;
+            height: 150px;
+        }
+
+        .plant-image.large {
+            width: 200px;
+            height: 200px;
+        }
+
+        .stats {
+            background: #ecf0f1;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .stat {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-value {
+            color: #27ae60;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .water-bar {
+            background: #bdc3c7;
+            border-radius: 10px;
+            height: 20px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .water-fill {
+            background: #3498db;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        .plant-btn {
+            background: #e67e22;
+            font-size: 20px;
+            padding: 15px 30px;
+        }
+
+        .plant-btn:hover {
+            background: #f39c12;
+        }
+
+        .cut-btn {
+            background: #e74c3c;
+        }
+
+        .cut-btn:hover {
+            background: #c0392b;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .info {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 15px;
+        }
+
+        .plant-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e67e22;
+            margin: 10px 0;
+        }
+
+        .hidden-plant {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🌱 Моё виртуальное растение</h1>
+    
+    <div id="noPlant" style="display: block;">
+        <div class="plant-area">
+            <div class="plant-emoji">🌿</div>
+            <p style="margin: 20px 0; color: #7f8c8d;">У вас пока нет растения</p>
+            <button class="plant-btn" onclick="plantSeed()">🌱 Посадить растение</button>
+        </div>
+    </div>
+
+    <div id="hasPlant" style="display: none;">
+        <div class="plant-area">
+            <!-- Обычное отображение (эмодзи) -->
+            <div class="plant-emoji" id="plantEmoji">🌱</div>
+            
+            <!-- Скрытое отображение для пасхалки (картинка) -->
+            <div id="plantImageContainer" class="hidden-plant">
+                <div class="plant-image-container">
+                   
+                    <img id="plantImage" class="plant-image small" src="avatarhd.png" alt=".....">
+                </div>
+            </div>
+            
+            <div class="plant-name" id="plantName"></div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">📏 Рост:</span>
+                    <span class="stat-value" id="height">0</span> см
+                </div>
+                <div class="stat">
+                    <span class="stat-label">💧 Уровень воды:</span>
+                    <span class="stat-value" id="water">0</span>%
+                    <div class="water-bar">
+                        <div class="water-fill" id="waterFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">🍃 Листьев:</span>
+                    <span class="stat-value" id="leaves">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">📅 Посажено:</span>
+                    <span class="stat-value" id="plantedDate">-</span>
+                </div>
+            </div>
+            
+            <div>
+                <button onclick="waterPlant()">💧 Полить (+10%)</button>
+                <button onclick="refreshPlant()">🔄 Обновить</button>
+                <button onclick="cutPlant()" class="cut-btn">🪓 Срубить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="message" class="message"></div>
+    <div class="info">
+        💡 Подсказка: Растение растёт каждые 10 секунд, если уровень воды выше 0%<br>
+        Не забывайте поливать!
+    </div>
+</div>
+
+<script>
+    function showMessage(text, isError = false) {
+        const msgDiv = document.getElementById('message');
+        msgDiv.textContent = text;
+        msgDiv.className = isError ? 'message error' : 'message success';
+        setTimeout(() => {
+            msgDiv.className = 'message';
+        }, 3000);
+    }
+
+    async function plantSeed() {
+        try {
+            const response = await fetch('plant.php', { method: 'POST' });
+            const result = await response.json();
+            
+            if (result.success) {
+                showMessage('🌱 Растение посажено! Заботьтесь о нём!');
+                loadPlantData();
+            } else {
+                showMessage(result.error, true);
+            }
+        } catch (error) {
+            showMessage('Ошибка при посадке', true);
+        }
+    }
+
+    async function waterPlant() {
+        try {
+            const response = await fetch('water.php', { method: 'POST' });
+            const result = await response.json();
+            
+            if (result.success) {
+                showMessage(result.message);
+                loadPlantData();
+            } else {
+                showMessage(result.error, true);
+            }
+        } catch (error) {
+            showMessage('Ошибка при поливе', true);
+        }
+    }
+
+    async function cutPlant() {
+        if (confirm('🌲 Вы уверены, что хотите срубить растение? Это действие необратимо!')) {
+            try {
+                const response = await fetch('cut.php', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showMessage(result.error, true);
+                }
+            } catch (error) {
+                showMessage('Ошибка при срубании', true);
+            }
+        }
+    }
+
+    async function refreshPlant() {
+        try {
+            const response = await fetch('get_plant.php');
+            const result = await response.json();
+            
+            if (result.success) {
+                updateUI(result.plant);
+            } else {
+                document.getElementById('noPlant').style.display = 'block';
+                document.getElementById('hasPlant').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    }
+
+    function updateUI(plant) {
+        document.getElementById('noPlant').style.display = 'none';
+        document.getElementById('hasPlant').style.display = 'block';
+        
+        document.getElementById('height').textContent = plant.height;
+        document.getElementById('water').textContent = plant.water;
+        document.getElementById('waterFill').style.width = plant.water + '%';
+        document.getElementById('leaves').textContent = plant.leaves;
+        document.getElementById('plantedDate').textContent = plant.created_at;
+        
+        const plantEmoji = document.getElementById('plantEmoji');
+        const plantImageContainer = document.getElementById('plantImageContainer');
+        const plantName = document.getElementById('plantName');
+        
+      
+        if (plant.height >= 150) {
+            plantEmoji.style.display = 'none';
+            plantImageContainer.style.display = 'block';
+            plantName.textContent = '🌟 ОДА ЭТО ЖЕ РИКАРДО!!!! 🌟';
+            
+            if (plant.height === 150 || plant.height === 151) {
+                showMessage('🎉 ВАУ! Вы нашли секрет!Готовте купончики суки. 🎉', false);
+            }
+        } else {
+            plantEmoji.style.display = 'block';
+            plantImageContainer.style.display = 'none';
+            
+            let emoji = '🌱';
+            let name = 'Неизвестное растение';
+            
+            if (plant.height > 500) {
+                emoji = '🌳';
+                name = 'Великое Древо 🌳';
+            } else if (plant.height > 300) {
+                emoji = '🌿';
+                name = 'Большой куст 🌿';
+            } else if (plant.height > 100) {
+                emoji = '🌱';
+                name = 'Молодой росток 🌱';
+            } else {
+                emoji = '🌱';
+                name = 'Маленькое семечко 🫘';
+            }
+            
+            plantEmoji.textContent = emoji;
+            plantName.textContent = name;
+        }
+    }
+
+    async function loadPlantData() {
+        await refreshPlant();
+    }
+
+    loadPlantData();
+    setInterval(loadPlantData, 10000);
+</script>
+</body>
+</html>
