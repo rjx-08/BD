@@ -1,0 +1,43 @@
+<?php
+header('Content-Type: application/json');
+
+$host = "sql307.infinityfree.com";
+$dbname = "if0_42017218_if0_42017218_db_1488676952228_dep";
+$username = "if0_42017218";
+$password = "xsMTfAo6lW";
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'error' => 'Ошибка БД']);
+    exit;
+}
+
+$conn->set_charset("utf8mb4");
+
+$result = $conn->query("SELECT id FROM plants LIMIT 1");
+
+if ($result && $result->num_rows > 0) {
+    echo json_encode(['success' => false, 'error' => 'Растение уже посажено']);
+    exit;
+}
+
+$conn->query("CREATE TABLE IF NOT EXISTS plants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    height INT DEFAULT 1,
+    water INT DEFAULT 50,
+    leaves INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
+$stmt = $conn->prepare("INSERT INTO plants (height, water, leaves) VALUES (1, 50, 1)");
+
+if ($stmt->execute()) {
+    echo json_encode(['success' => true]);
+} else {
+    echo json_encode(['success' => false, 'error' => 'Ошибка при посадке']);
+}
+
+$stmt->close();
+$conn->close();
+?>
