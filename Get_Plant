@@ -1,0 +1,51 @@
+<?php
+header('Content-Type: application/json');
+
+
+$host = "sql307.infinityfree.com";
+$dbname = "if0_42017218_if0_42017218_db_1488676952228_dep";
+$username = "if0_42017218";
+$password = "xsMTfAo6lW";
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'error' => 'Ошибка подключения']);
+    exit;
+}
+
+$conn->set_charset("utf8mb4");
+
+$conn->query("UPDATE plants SET 
+    height = height + 1,
+    water = GREATEST(water - 1, 0),
+    leaves = height / 10 + 1
+WHERE water > 0");
+
+// Если воды нет — рост останавливается, но вода не уходит в минус
+$conn->query("UPDATE plants SET 
+    water = GREATEST(water - 1, 0)
+WHERE water = 0");
+
+// Получаем данные
+$result = $conn->query("SELECT height, water, leaves, created_at FROM plants LIMIT 1");
+
+if ($result->num_rows == 0) {
+    echo json_encode(['success' => false]);
+    exit;
+}
+
+$plant = $result->fetch_assoc();
+
+echo json_encode([
+    'success' => true,
+    'plant' => [
+        'height' => $plant['height'],
+        'water' => $plant['water'],
+        'leaves' => $plant['leaves'],
+        'created_at' => $plant['created_at']
+    ]
+]);
+
+$conn->close();
+?>
