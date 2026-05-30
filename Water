@@ -1,0 +1,45 @@
+<?php
+header('Content-Type: application/json');
+
+$host = "sql307.infinityfree.com";
+$dbname = "if0_42017218_if0_42017218_db_1488676952228_dep";  // ПРАВИЛЬНОЕ ИМЯ (с двумя if0)
+$username = "if0_42017218";
+$password = "xsMTfAo6lW";
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+// Проверка подключения
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'error' => 'Ошибка подключения к БД']);
+    exit;
+}
+
+$result = $conn->query("SELECT id, water FROM plants LIMIT 1");
+
+if ($result->num_rows == 0) {
+    echo json_encode(['success' => false, 'error' => 'Сначала посадите растение!']);
+    $conn->close();
+    exit;
+}
+
+$row = $result->fetch_assoc();
+
+
+$newWater = $row['water'] + 10;
+if ($newWater > 100) {
+    $newWater = 100;  // Не больше 100%
+}
+
+
+$stmt = $conn->prepare("UPDATE plants SET water = ? WHERE id = ?");
+$stmt->bind_param("ii", $newWater, $row['id']);
+
+if ($stmt->execute()) {
+    echo json_encode(['success' => true, 'message' => 'Растение полито! 💧']);
+} else {
+    echo json_encode(['success' => false, 'error' => 'Ошибка при поливе']);
+}
+
+$stmt->close();
+$conn->close();
+?>
